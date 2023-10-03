@@ -1,0 +1,11 @@
+dash==2.13.0
+dash_bootstrap_components==1.5.0
+numpy
+pandas
+plotly
+python-dotenv
+Requests
+scikit_learn
+scipy
+seaborn
+gunicorn
