@@ -91,10 +91,10 @@ def get_final_dataset(playlist_id, headers):
     
     track_hrefs = tracks['track_href'].tolist()
     audio_features = get_audio_features_parallel(track_hrefs, headers)
-    #if audio_features[0]=='429':
-    #    return '429'
-    final_dataset = pd.concat([tracks, pd.DataFrame(audio_features)], axis=1)
+    if audio_features[0]=='429':
+        return audio_features[0]
     
+    final_dataset = pd.concat([tracks, pd.DataFrame(audio_features)], axis=1)
     return final_dataset
 
 
@@ -103,7 +103,6 @@ def scale_columns(final_dataset):
     scaler = MinMaxScaler(feature_range=(-1, 1))
     
     columns_to_scale = ['valence', 'energy']
-    columns_scaled = ['valence_scaled', 'energy_scaled']
     
     scaled_data = np.round(scaler.fit_transform(final_dataset[columns_to_scale]),2)
     scaled_df = pd.DataFrame(scaled_data, columns=[f'{col}_scaled' for col in columns_to_scale])
@@ -125,15 +124,13 @@ def quadrant(x, y):
         return [[x,y], "Neutro", "#160C28"]
 
 def calculate_metrics(final_dataset):
-    columns_to_scale = ['valence', 'energy']
     columns_scaled = ['valence_scaled', 'energy_scaled']
     
     median = np.round(np.median(final_dataset[columns_scaled], axis=0),2)
-    median_norm = np.linalg.norm(median)
     playlist_mood = quadrant(median[0], median[1])
     
     # Calculate score
-    A = np.array(final_dataset[['valence_scaled','energy_scaled']])
+    A = np.array(final_dataset[columns_scaled])
     final_dataset['cos_similarity'] = 1 - np.round(np.dot(A,median)/(norm(A, axis=1)*norm(median)), 2)
     final_dataset['distance'] = np.round(norm(A - median, axis=1), 2)
     final_dataset['score'] = (final_dataset['distance']) * (final_dataset['cos_similarity']) * (-1)
@@ -367,14 +364,16 @@ def update_output(clicks, input_value):
         
         final_dataset = get_final_dataset(url, headers)
 
-        #if final_dataset=='429':
-        #    return None, True, False, no_update, no_update
+        if final_dataset=='429':
+            return None, True, False, no_update, no_update
 
-        if  isinstance(final_dataset, str):
+        elif  isinstance(final_dataset, str):
             return None, False, True, no_update, no_update
+        
         else:
             final_dataset = scale_columns(final_dataset)
             final_dataset, playlist_mood = calculate_metrics(final_dataset)
+
             return None, False, False, final_dataset.set_index('track_href').to_dict('records'), playlist_mood
         
 @callback(
