@@ -91,8 +91,8 @@ def get_final_dataset(playlist_id, headers):
     
     track_hrefs = tracks['track_href'].tolist()
     audio_features = get_audio_features_parallel(track_hrefs, headers)
-    if audio_features[0]=='429':
-        return '429'
+    #if audio_features[0]=='429':
+    #    return '429'
     final_dataset = pd.concat([tracks, pd.DataFrame(audio_features)], axis=1)
     
     return final_dataset
@@ -367,16 +367,14 @@ def update_output(clicks, input_value):
         
         final_dataset = get_final_dataset(url, headers)
 
-        if final_dataset=='429':
-            return None, True, False, no_update, no_update
+        #if final_dataset=='429':
+        #    return None, True, False, no_update, no_update
 
-        elif  isinstance(final_dataset, str):
+        if  isinstance(final_dataset, str):
             return None, False, True, no_update, no_update
-        
         else:
             final_dataset = scale_columns(final_dataset)
             final_dataset, playlist_mood = calculate_metrics(final_dataset)
-
             return None, False, False, final_dataset.set_index('track_href').to_dict('records'), playlist_mood
         
 @callback(
