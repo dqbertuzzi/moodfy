@@ -374,11 +374,11 @@ def update_output(clicks, input_value):
         
         final_dataset = get_final_dataset(url, headers)
 
-        if final_dataset=='429':
-            return None, True, False, no_update, no_update
-
-        elif  isinstance(final_dataset, str):
-            return None, False, True, no_update, no_update
+        if isinstance(final_dataset, str):
+            if final_dataset=='429':
+                return None, True, False, no_update, no_update
+            else:
+                return None, False, True, no_update, no_update
         
         else:
             final_dataset = scale_columns(final_dataset)
