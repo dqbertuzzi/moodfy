@@ -28,16 +28,32 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def extrair_codigo_playlist(url):
-    # Padroniza a regex para encontrar o código da playlist em diferentes formatos de URL
-    padrao = r'(playlist/|link/)([a-zA-Z0-9]+)'
+    # Padroniza a regex para encontrar o código da playlist
+    padrao = r'/playlist/(\w+)\??'
     
     # Encontra todas as correspondências do padrão na URL
     correspondencias = re.findall(padrao, url)
-
+    
+    # Verifica se há correspondências e retorna o código da playlist
     if correspondencias:
-        return correspondencias[0][1]
+        return correspondencias[0]
     else:
-        return None
+        try:
+        # Tenta obter a localização do cabeçalho da resposta HTTP
+            response = requests.head(url)
+            url2 = response.headers.get('location', None)
+        
+            if url2:
+                correspondencias = re.findall(padrao, url2)
+                if correspondencias:
+                    return correspondencias[0]
+        
+        # Se não houver correspondências, retorna None
+            return None
+    
+        except requests.exceptions.RequestException as e:
+            # Trata a exceção em caso de erro na requisição
+            return None
 # Spotify API related functions
 
 def get_token(client_id, client_secret):
