@@ -175,9 +175,9 @@ def calculate_metrics(final_dataset):
 def create_mood_scatter_plot(playlist_mood, outlier_data):
     # Create scatter plot
     fig = px.scatter(x=[playlist_mood[0][0]], y=[playlist_mood[0][1]], labels={"x": "Valência", "y": "Energia"},
-                     template="simple_white", width=800, height=800)
+                     template="simple_white")
     
-    # Update layout
+    ## Update layout
     fig.update_layout(
         yaxis_range=[-1.1, 1.1],
         xaxis_range=[-1.1, 1.1],
@@ -185,11 +185,11 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
         xaxis=dict(visible=True, showticklabels=False)
     )
 
-    # Add arrows
-    x_end = [0.9, 0]
-    y_end = [0, 0.9]
-    x_start = [-0.9, 0]
-    y_start = [0, -0.9]
+    ## Add arrows
+    x_end = [0.95, 0]
+    y_end = [0, 0.95]
+    x_start = [-0.95, 0]
+    y_start = [0, -0.95]
     list_of_all_arrows = []
 
     for x0, y0, x1, y1 in zip(x_end, y_end, x_start, y_start):
@@ -214,14 +214,15 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
         font_family="Mukta Vaani",
         xaxis_title="VALÊNCIA (→)",
         yaxis_title="ENERGIA (→)",
-        font=dict(size=24)
+        font=dict(size=16),
+        margin=dict(l=5, r=5, t=5, b=10)
     )
 
     # Add text annotations
-    x = [0, 0, -0.9, 0.9]
-    y = [0.9, -0.9, 0, 0]
-    xshift = [35, 35, 35, -35]
-    yshift = [-25, 25, 25, 25]
+    x = [0, 0, -0.95, 0.95]
+    y = [0.95, -0.95, 0, 0]
+    xshift = [15, 15, 25, -25]
+    yshift = [-25, 25, 15, 15]
     text = ["<i>Alta</i>", "<i>Baixa</i>", "<i>Negativa</i>", "<i>Positiva</i>"]
 
     for x_, y_, t_, xshift_, yshift_ in zip(x, y, text, xshift, yshift):
@@ -230,7 +231,7 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
                            showarrow=False,
                            yshift=yshift_,
                            xshift=xshift_,
-                           font={"size": 14})
+                           font={"size": 12})
 
     x = [0.5, -0.5, -0.5, 0.5]
     y = [0.5, -0.5, 0.5, -0.5]
@@ -240,17 +241,21 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
         fig.add_annotation(x=x_, y=y_,
                            text=t_,
                            showarrow=False,
-                           font={"size": 24},
+                           font={"size": 12},
                            align="center",
                            opacity=0.25)
 
+    fig.update_xaxes(
+        range=[-1,1],  # sets the range of xaxis
+        constrain="domain",  # meanwhile compresses the xaxis by decreasing its "domain"
+    )
     fig.update_yaxes(
-        scaleanchor="x",
-        scaleratio=1
+        scaleanchor = "x",
+        scaleratio = 1
     )
 
     fig.update_traces(
-        marker=dict(size=50, color=playlist_mood[2], line=dict(width=1, color='#160C28')),
+        marker=dict(size=35, color=playlist_mood[2], line=dict(width=1, color='#160C28')),
         selector=dict(mode='markers'),
         hovertemplate="<br>".join([
             "Playlist",
@@ -282,6 +287,7 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
 app = Dash(__name__,
           meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}], external_stylesheets=[dbc.themes.MINTY])
 server = app.server
+app.title = "Moodfy"
 app.config.suppress_callback_exceptions = True
 
 def display_artistInfo(info):
