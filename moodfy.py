@@ -5,6 +5,7 @@ import requests
 from requests import post, get
 from concurrent.futures import ThreadPoolExecutor
 import json
+import re
 
 # Data manipulation and analysis imports
 import numpy as np
@@ -26,6 +27,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+def extrair_codigo_playlist(url):
+    padrao = r'playlist/(\w+)'
+    
+    correspondencias = re.findall(padrao, url)
+    
+    if correspondencias:
+        return correspondencias[0]
+    else:
+        return None
 # Spotify API related functions
 
 def get_token(client_id, client_secret):
@@ -48,7 +58,7 @@ def get_auth_header(token):
     return {"Authorization": "Bearer " + token}
 
 def get_tracks(playlist_url, headers):
-    playlist_id = playlist_url.split('/')[-1].split("?")[0]
+    playlist_id = extrair_codigo_playlist(playlist_url)
     url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?offset=0'
 
     response = get(url=url, headers=headers)
