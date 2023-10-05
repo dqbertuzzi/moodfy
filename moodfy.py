@@ -316,6 +316,8 @@ app.layout = html.Div([
     html.H1("Spotify Mood Check",
             style={'color':'#1db954', "font-size":"4vh"}), style={'display': 'inline-block'}
             ),
+    html.P(["Criado por ", html.A("Daniel", href="https://github.com/dqbertuzzi")],
+           style={"font-size":"2vh"}),
     html.Div(
     html.Hr(style={'border':'none', 'height':'.3vh', 'background-color':'#160C28', 'display': 'block'})),
     html.H2("Sintonize sua emoção: descubra o sentimento por trás da sua playlist!",
