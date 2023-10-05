@@ -77,7 +77,7 @@ def get_auth_header(token):
 
 def get_tracks(playlist_url, headers):
     playlist_id = extrair_codigo_playlist(playlist_url)
-    url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=50&offset=0'
+    url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=99&offset=0'
 
     response = get(url=url, headers=headers)
     try:
@@ -96,8 +96,8 @@ def get_tracks(playlist_url, headers):
     })
     return tracks
 
-def get_audio_features(href, headers):
-    url = f'https://api.spotify.com/v1/audio-features/{href}'
+def get_audio_features(href_df, headers):
+    url = f'https://api.spotify.com/v1/audio-features?ids='+','.join(href_df)
 
     response = get(url=url, headers=headers)
     try:
@@ -107,23 +107,23 @@ def get_audio_features(href, headers):
     audio_features = response.json()
     return audio_features
 
-def get_audio_features_parallel(track_hrefs, headers):
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        audio_features = list(executor.map(lambda h: get_audio_features(h, headers), track_hrefs))
-    return audio_features
+#def get_audio_features_parallel(track_hrefs, headers):
+#    with ThreadPoolExecutor(max_workers=10) as executor:
+#        audio_features = list(executor.map(lambda h: get_audio_features(h, headers), track_hrefs))
+#    return audio_features
 
 def get_final_dataset(playlist_id, headers):
     tracks = get_tracks(playlist_id, headers)
     if isinstance(tracks, str):
         return tracks
     
-    track_hrefs = tracks['track_href'].tolist()
-    audio_features = get_audio_features_parallel(track_hrefs, headers)
-    if audio_features[0]=='429':
-        return audio_features[0]
+    track_hrefs = tracks['track_href'].values
+    audio_features = get_audio_features(track_hrefs, headers)
+    if isinstance(audio_features, dict):
+        final_dataset = pd.concat([tracks, pd.DataFrame(audio_features['audio_features'])], axis=1)
+        return final_dataset
     
-    final_dataset = pd.concat([tracks, pd.DataFrame(audio_features)], axis=1)
-    return final_dataset
+    return audio_features[0]
 
 
 # Data manipulation and scaling functions
