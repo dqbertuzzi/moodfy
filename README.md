@@ -1,4 +1,4 @@
-# Moodfy Web Application
+## Moodfy Web Application
 Moodfy is a web application designed to identify the prevalent emotion of a Spotify playlist and pinpoint tracks within the playlist that do not align with this emotion using advanced outlier detection techniques. The application leverages the Spotify API for playlist analysis and visualization.
 
 ## Technologies Used
