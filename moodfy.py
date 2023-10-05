@@ -77,7 +77,7 @@ def get_auth_header(token):
 
 def get_tracks(playlist_url, headers):
     playlist_id = extrair_codigo_playlist(playlist_url)
-    url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?offset=0'
+    url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=50&offset=0'
 
     response = get(url=url, headers=headers)
     try:
@@ -246,7 +246,7 @@ def create_mood_scatter_plot(playlist_mood, outlier_data):
                            opacity=0.25)
 
     fig.update_xaxes(
-        range=[-1,1],  # sets the range of xaxis
+        range=[-1.1,1.1],  # sets the range of xaxis
         constrain="domain",  # meanwhile compresses the xaxis by decreasing its "domain"
     )
     fig.update_yaxes(
@@ -378,7 +378,7 @@ app.layout = html.Div([
 )
 
 @callback(
-        [Output("loading-output-1", "children"),
+        [Output("loading-output-1", "children", allow_duplicate=True),
         Output("modal1", "is_open"),
         Output("modal2", "is_open"),
         Output("dataset", 'data'),
@@ -411,7 +411,8 @@ def update_output(clicks, input_value):
             return None, False, False, final_dataset.set_index('track_href').to_dict('records'), playlist_mood
         
 @callback(
-    [Output('graph-figure', 'figure'),
+    [Output("loading-output-1", "children"),
+     Output('graph-figure', 'figure'),
      Output('graph-figure', 'style'),
      Output('output-album-image', 'children'),
      Output('mood-h2', 'style')],
@@ -427,7 +428,7 @@ def display_results(dataset, playlistMood):
                'track_titles': list(outlier_data['track_title']),
                'img_srcs': list(outlier_data['album_image'])}
 
-    return create_mood_scatter_plot(playlistMood, outlier_data), {'display': 'block'}, display_artistInfo(outlier_artists), {'display': 'block'}
+    return None, create_mood_scatter_plot(playlistMood, outlier_data), {'display': 'block'}, display_artistInfo(outlier_artists), {'display': 'block'}
     
 if __name__ == "__main__":
     app.run(debug=True)
